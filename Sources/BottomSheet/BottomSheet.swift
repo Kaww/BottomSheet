@@ -86,7 +86,7 @@ public struct BottomSheet {
 
     /// Wraps the UIKit's largestUndimmedDetentIdentifier.
     /// *"The largest detent that doesn’t dim the view underneath the sheet."*
-    public enum LargestUndimmedDetent {
+    public enum LargestUndimmedDetent: CaseIterable, Identifiable {
         case medium
         case large
 
@@ -98,6 +98,20 @@ public struct BottomSheet {
             case .large:
                 return .large
             }
+        }
+
+        public var description: String {
+            switch self {
+            case .medium:
+                return "Medium"
+
+            case .large:
+                return "Large"
+            }
+        }
+
+        public var id: Int {
+            self.hashValue
         }
     }
 
