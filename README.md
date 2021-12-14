@@ -38,6 +38,10 @@ Button(action: { BottomSheet.dismiss() }) {
 }
 ```
 
+## Preview
+
+![Bottom sheet](./bottomsheet.gif)
+
 ## Sources
 
 Inspired by Sarun W.'s article ["How to present a Bottom Sheet in iOS 15 with UISheetPresentationController"](https://sarunw.com/posts/bottom-sheet-in-ios-15-with-uisheetpresentationcontroller/).
