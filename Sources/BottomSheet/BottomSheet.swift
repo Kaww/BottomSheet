@@ -29,6 +29,8 @@ public extension View {
                                     isPresented.projectedValue.wrappedValue = false
                                 }
                         }
+                    } else {
+
                     }
                 }
         }
@@ -115,12 +117,20 @@ public struct BottomSheet {
         }
     }
 
+    private static var ref: UINavigationController? = nil
+
+    public static func dismiss() {
+        ref?.dismiss(animated: true, completion: { ref = nil })
+    }
+
     /// Handles the presentation logic of the new UIKit's pageSheet modal presentation style.
     ///
     /// *Sarun's* blog article source: https://sarunw.com/posts/bottom-sheet-in-ios-15-with-uisheetpresentationcontroller/
     fileprivate static func present<ContentView: View>(detents: Detents, shouldScrollExpandSheet: Bool, largestUndimmedDetent: LargestUndimmedDetent?, showGrabber: Bool, cornerRadius: CGFloat?, @ViewBuilder _ contentView: @escaping () -> ContentView) {
         let detailViewController = UIHostingController(rootView: contentView())
         let nav = UINavigationController(rootViewController: detailViewController)
+
+        ref = nav
 
         nav.modalPresentationStyle = .pageSheet
 

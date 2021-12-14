@@ -4,6 +4,8 @@ Bring to SwiftUI the UIKit bottom sheet capabilities that came with iOS15.
 
 ## Usage
 
+#### Show the bottom sheet
+
 ``` swift
 Button(action: { show.toggle() }) {
     Text("Show!")
@@ -25,6 +27,14 @@ Button(action: { show.toggle() }) {
             Text("Look at that bottom sheet!!")
         }
     }
+}
+```
+
+#### Dismiss
+
+``` swift
+Button(action: { BottomSheet.dismiss() }) {
+    Label("Dismiss", systemImage: "multiply")
 }
 ```
 
