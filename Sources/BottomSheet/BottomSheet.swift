@@ -39,7 +39,7 @@ public extension View {
 public struct BottomSheet {
 
     /// Wraps the UIKit's detents (UISheetPresentationController.Detent)
-    public enum Detents {
+    public enum Detents: CaseIterable {
         /// Creates a system detent for a sheet that's approximately half the height of the screen, and is inactive in compact height.
         case medium
         /// Creates a system detent for a sheet at full height.
@@ -59,6 +59,22 @@ public struct BottomSheet {
 
             case .mediumAndLarge, .largeAndMedium:
                 return [.medium(), .large()]
+            }
+        }
+
+        public var description: String {
+            switch self {
+            case .medium:
+                return "Medium"
+
+            case .large:
+                return "Large"
+
+            case .mediumAndLarge:
+                return "Medium and large"
+
+            case .largeAndMedium:
+                return "Large and medium"
             }
         }
     }
