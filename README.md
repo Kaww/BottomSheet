@@ -1,3 +1,33 @@
 # BottomSheet
 
-A description of this package.
+Bring to SwiftUI the UIKit bottom sheet capabilities that came with iOS15.
+
+## Usage
+
+``` swift
+Button(action: { show.toggle() }) {
+    Text("Show!")
+}
+.bottomSheet(
+    isPresented: $show,
+    detents: .mediumAndLarge,
+    shouldScrollExpandSheet: true,
+    largestUndimmedDetent: .medium,
+    showGrabber: true,
+    cornerRadius: 20
+) {
+    List {
+        Section {
+            ForEach(0..<50, id: \.self) { id in
+                Text("Item \(id)")
+            }
+        } header: {
+            Text("Look at that bottom sheet!!")
+        }
+    }
+}
+```
+
+## Sources
+
+Inspired by Sarun W.'s article ["How to present a Bottom Sheet in iOS 15 with UISheetPresentationController"](https://sarunw.com/posts/bottom-sheet-in-ios-15-with-uisheetpresentationcontroller/).
