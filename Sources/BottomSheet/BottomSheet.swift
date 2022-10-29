@@ -4,7 +4,7 @@ import SwiftUI
 public extension View {
 
     /// Presents a bottomSheet when a binding to a Boolean value that you provide is true.
-    public func bottomSheet<Content: View>(
+    func bottomSheet<Content: View>(
         isPresented: Binding<Bool>,
         detents: BottomSheet.Detents = .medium,
         shouldScrollExpandSheet: Bool = true,
@@ -15,6 +15,9 @@ public extension View {
     ) -> some View {
         background {
             Color.clear
+                .onDisappear {
+                    BottomSheet.dismiss()
+                }
                 .onChange(of: isPresented.wrappedValue) { show in
                     if show {
                         BottomSheet.present(
@@ -29,8 +32,6 @@ public extension View {
                                     isPresented.projectedValue.wrappedValue = false
                                 }
                         }
-                    } else {
-
                     }
                 }
         }
@@ -125,8 +126,15 @@ public struct BottomSheet {
 
     /// Handles the presentation logic of the new UIKit's pageSheet modal presentation style.
     ///
-    /// *Sarun's* blog article source: https://sarunw.com/posts/bottom-sheet-in-ios-15-with-uisheetpresentationcontroller/
-    fileprivate static func present<ContentView: View>(detents: Detents, shouldScrollExpandSheet: Bool, largestUndimmedDetent: LargestUndimmedDetent?, showGrabber: Bool, cornerRadius: CGFloat?, @ViewBuilder _ contentView: @escaping () -> ContentView) {
+    /// *Sarun's* blog article source: https://sarunw.com/posts/bottom-sheet-in-ios-15-with-
+    fileprivate static func present<ContentView: View>(
+        detents: Detents,
+        shouldScrollExpandSheet: Bool,
+        largestUndimmedDetent: LargestUndimmedDetent?,
+        showGrabber: Bool,
+        cornerRadius: CGFloat?,
+        @ViewBuilder _ contentView: @escaping () -> ContentView
+    ) {
         let detailViewController = UIHostingController(rootView: contentView())
         let nav = UINavigationController(rootViewController: detailViewController)
 
@@ -140,7 +148,7 @@ public struct BottomSheet {
             sheet.largestUndimmedDetentIdentifier = largestUndimmedDetent?.value ?? .none
             sheet.prefersGrabberVisible = showGrabber
             sheet.preferredCornerRadius = cornerRadius
-            // Missing artice's section "Switch between available detents" section
+            // Missing article's section "Switch between available detents" section
             // Missing property sheet.prefersEdgeAttachedInCompactHeight
 
             switch detents {
