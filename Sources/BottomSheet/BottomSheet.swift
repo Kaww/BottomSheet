@@ -12,6 +12,7 @@ public extension View {
         showGrabber: Bool = false,
         cornerRadius: CGFloat? = nil,
         showsInCompactHeight: Bool = false,
+        dismissable: Bool = true,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         background {
@@ -27,7 +28,8 @@ public extension View {
                             largestUndimmedDetent: largestUndimmedDetent,
                             showGrabber: showGrabber,
                             cornerRadius: cornerRadius,
-                            showsInCompactHeight: showsInCompactHeight
+                            showsInCompactHeight: showsInCompactHeight,
+                            dismissable: dismissable
                         ) {
                             content()
                                 .onDisappear {
@@ -136,6 +138,7 @@ public struct BottomSheet {
         showGrabber: Bool,
         cornerRadius: CGFloat?,
         showsInCompactHeight: Bool,
+        dismissable: Bool,
         @ViewBuilder _ contentView: @escaping () -> Content
     ) {
         let detailViewController = UIHostingController(rootView: contentView())
@@ -144,6 +147,7 @@ public struct BottomSheet {
         ref = nav
 
         nav.modalPresentationStyle = .pageSheet
+        nav.isModalInPresentation = !dismissable
 
         if let sheet = nav.sheetPresentationController {
             sheet.detents = detents.value
