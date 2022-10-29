@@ -11,6 +11,7 @@ public extension View {
         largestUndimmedDetent: BottomSheet.LargestUndimmedDetent? = nil,
         showGrabber: Bool = false,
         cornerRadius: CGFloat? = nil,
+        showsInCompactHeight: Bool = false,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         background {
@@ -25,7 +26,8 @@ public extension View {
                             shouldScrollExpandSheet: shouldScrollExpandSheet,
                             largestUndimmedDetent: largestUndimmedDetent,
                             showGrabber: showGrabber,
-                            cornerRadius: cornerRadius
+                            cornerRadius: cornerRadius,
+                            showsInCompactHeight: showsInCompactHeight
                         ) {
                             content()
                                 .onDisappear {
@@ -127,13 +129,14 @@ public struct BottomSheet {
     /// Handles the presentation logic of the new UIKit's pageSheet modal presentation style.
     ///
     /// *Sarun's* blog article source: https://sarunw.com/posts/bottom-sheet-in-ios-15-with-
-    fileprivate static func present<ContentView: View>(
+    fileprivate static func present<Content: View>(
         detents: Detents,
         shouldScrollExpandSheet: Bool,
         largestUndimmedDetent: LargestUndimmedDetent?,
         showGrabber: Bool,
         cornerRadius: CGFloat?,
-        @ViewBuilder _ contentView: @escaping () -> ContentView
+        showsInCompactHeight: Bool,
+        @ViewBuilder _ contentView: @escaping () -> Content
     ) {
         let detailViewController = UIHostingController(rootView: contentView())
         let nav = UINavigationController(rootViewController: detailViewController)
@@ -148,8 +151,8 @@ public struct BottomSheet {
             sheet.largestUndimmedDetentIdentifier = largestUndimmedDetent?.value ?? .none
             sheet.prefersGrabberVisible = showGrabber
             sheet.preferredCornerRadius = cornerRadius
+            sheet.prefersEdgeAttachedInCompactHeight = showsInCompactHeight
             // Missing article's section "Switch between available detents" section
-            // Missing property sheet.prefersEdgeAttachedInCompactHeight
 
             switch detents {
             case .largeAndMedium:
