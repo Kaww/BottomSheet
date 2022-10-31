@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 @available(iOS 15, *)
 public extension View {
@@ -6,7 +7,7 @@ public extension View {
     /// Presents a bottomSheet when a binding to a Boolean value that you provide is true.
     func bottomSheet<Content: View>(
         isPresented: Binding<Bool>,
-        detents: BottomSheet.Detents = .medium,
+        detents: [BottomSheet.Detent] = [.medium],
         shouldScrollExpandSheet: Bool = true,
         largestUndimmedDetent: BottomSheet.LargestUndimmedDetent? = nil,
         showGrabber: Bool = false,
@@ -48,29 +49,13 @@ public extension View {
 public struct BottomSheet {
 
     /// Wraps the UIKit's detents (UISheetPresentationController.Detent)
-    public enum Detents: CaseIterable, Identifiable {
-
-        /// Creates a system detent for a sheet that's approximately half the height of the screen, and is inactive in compact height.
+    public enum Detent: Identifiable, CustomStringConvertible, Equatable {
         case medium
-        /// Creates a system detent for a sheet at full height.
         case large
-        /// Allows both medium and large detents. Opens in medium first
-        case mediumAndLarge
-        /// Allows both large and medium detents. Opens in large first
-        case largeAndMedium
+        case fixed(Int)
+        case ratio(Double)
 
-        fileprivate var value: [UISheetPresentationController.Detent] {
-            switch self {
-            case .medium:
-                return [.medium()]
-
-            case .large:
-                return [.large()]
-
-            case .mediumAndLarge, .largeAndMedium:
-                return [.medium(), .large()]
-            }
-        }
+        public var id: String { description }
 
         public var description: String {
             switch self {
@@ -80,16 +65,35 @@ public struct BottomSheet {
             case .large:
                 return "Large"
 
-            case .mediumAndLarge:
-                return "Medium and large"
+            case .fixed(let value):
+                return "Fixed height of \(value)"
 
-            case .largeAndMedium:
-                return "Large and medium"
+            case .ratio(let value):
+                return "Ratio of \(value)"
             }
         }
 
-        public var id: Int {
-            self.hashValue
+        var asUIKitDetent: UISheetPresentationController.Detent? {
+            switch self {
+            case .medium:
+                return .medium()
+
+            case .large:
+                return .large()
+
+#if swift(>=5.7)
+            case .fixed(let value):
+                guard #available(iOS 16, *) else { return nil }
+                return .custom { _ in CGFloat(value) }
+
+            case .ratio(let value):
+                guard #available(iOS 16, *) else { return nil }
+                return .custom { $0.maximumDetentValue * value }
+#else
+            case .fixed, .ratio:
+                return nil
+#endif
+            }
         }
     }
 
@@ -131,10 +135,9 @@ public struct BottomSheet {
     }
 
     /// Handles the presentation logic of the new UIKit's pageSheet modal presentation style.
-    ///
     /// *Sarun's* blog article source: https://sarunw.com/posts/bottom-sheet-in-ios-15-with-
     fileprivate static func present<Content: View>(
-        detents: Detents,
+        detents: [Detent],
         shouldScrollExpandSheet: Bool,
         largestUndimmedDetent: LargestUndimmedDetent?,
         showGrabber: Bool,
@@ -152,25 +155,58 @@ public struct BottomSheet {
         nav.isModalInPresentation = !dismissable
 
         if let sheet = nav.sheetPresentationController {
-            sheet.detents = detents.value
+            sheet.detents = detents.isEmpty ? [.medium()] : detents.compactMap { $0.asUIKitDetent }
             sheet.prefersScrollingExpandsWhenScrolledToEdge = shouldScrollExpandSheet
-            sheet.largestUndimmedDetentIdentifier = largestUndimmedDetent?.value ?? .none
+            setLargestUndimmedDetentIdentifier(
+                to: sheet,
+                detent: largestUndimmedDetent,
+                availableDetents: detents
+            )
             sheet.prefersGrabberVisible = showGrabber
             sheet.preferredCornerRadius = cornerRadius
             sheet.prefersEdgeAttachedInCompactHeight = showsInCompactHeight
-            // Missing article's section "Switch between available detents" section
 
-            switch detents {
-            case .largeAndMedium:
-                sheet.selectedDetentIdentifier = .large
+            if let firstDetent = detents.first {
+                switch firstDetent {
+                case .medium:
+                    sheet.selectedDetentIdentifier = .medium
 
-            case .mediumAndLarge:
-                sheet.selectedDetentIdentifier = .medium
+                case .large:
+                    sheet.selectedDetentIdentifier = .large
 
-            default: break
+                case .ratio, .fixed:
+                    guard #available(iOS 16, *) else {
+                        if detents.contains(.medium) {
+                            sheet.selectedDetentIdentifier = .medium
+                        } else if detents.contains(.large) {
+                            sheet.selectedDetentIdentifier = .large
+                        }
+                        break
+                    }
+#if swift(>=5.7)
+                    sheet.selectedDetentIdentifier = firstDetent.asUIKitDetent?.identifier
+#endif
+                }
             }
         }
 
         UIApplication.shared.windows.first?.rootViewController?.present(nav, animated: true, completion: nil)
+    }
+
+    fileprivate static func setLargestUndimmedDetentIdentifier(
+        to sheet: UISheetPresentationController,
+        detent: LargestUndimmedDetent?,
+        availableDetents: [Detent]
+    ) {
+        guard let detent = detent else { return }
+        if detent == .medium || detent == .large {
+            sheet.largestUndimmedDetentIdentifier = detent.value
+        } else {
+            if availableDetents.contains(.medium) {
+                sheet.largestUndimmedDetentIdentifier = .medium
+            } else if availableDetents.contains(.large) {
+                sheet.largestUndimmedDetentIdentifier = .large
+            }
+        }
     }
 }
