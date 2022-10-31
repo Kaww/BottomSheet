@@ -36,9 +36,9 @@ public extension View {
                                 .onDisappear {
                                     isPresented.projectedValue.wrappedValue = false
                                 }
-                        } else {
-                            BottomSheet.dismiss()
                         }
+                    } else {
+                        BottomSheet.dismiss()
                     }
                 }
         }
