@@ -12,11 +12,13 @@ Button(action: { show.toggle() }) {
 }
 .bottomSheet(
     isPresented: $show,
-    detents: .mediumAndLarge,
+    detents: [.fixed(100), .medium, .ratio(0.75)],
     shouldScrollExpandSheet: true,
-    largestUndimmedDetent: .medium,
+    largestUndimmedDetent: [.medium],
     showGrabber: true,
-    cornerRadius: 20
+    cornerRadius: 40,
+    showsInCompactHeight: true,
+    dismissable: true
 ) {
     List {
         Section {
