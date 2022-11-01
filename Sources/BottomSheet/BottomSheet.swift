@@ -151,6 +151,8 @@ public struct BottomSheet {
 
         ref = nav
 
+        nav.navigationBar.isHidden = true
+
         nav.modalPresentationStyle = .pageSheet
         nav.isModalInPresentation = !dismissable
 
