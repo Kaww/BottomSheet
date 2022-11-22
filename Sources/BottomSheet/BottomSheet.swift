@@ -13,6 +13,7 @@ public extension View {
         showGrabber: Bool = false,
         cornerRadius: CGFloat? = nil,
         showsInCompactHeight: Bool = false,
+        showNavigationBar: Bool = true,
         dismissable: Bool = true,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
@@ -30,6 +31,7 @@ public extension View {
                             showGrabber: showGrabber,
                             cornerRadius: cornerRadius,
                             showsInCompactHeight: showsInCompactHeight,
+                            showNavigationBar: showNavigationBar,
                             dismissable: dismissable
                         ) {
                             content()
@@ -143,6 +145,7 @@ public struct BottomSheet {
         showGrabber: Bool,
         cornerRadius: CGFloat?,
         showsInCompactHeight: Bool,
+        showNavigationBar: Bool,
         dismissable: Bool,
         @ViewBuilder _ contentView: @escaping () -> Content
     ) {
@@ -151,6 +154,7 @@ public struct BottomSheet {
 
         ref = nav
 
+        nav.navigationBar.isHidden = !showNavigationBar
         nav.modalPresentationStyle = .pageSheet
         nav.isModalInPresentation = !dismissable
 
