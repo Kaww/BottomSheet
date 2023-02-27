@@ -15,6 +15,7 @@ public extension View {
         showsInCompactHeight: Bool = false,
         showNavigationBar: Bool = true,
         dismissable: Bool = true,
+        preferredColorScheme: ColorScheme? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         background {
@@ -32,7 +33,8 @@ public extension View {
                             cornerRadius: cornerRadius,
                             showsInCompactHeight: showsInCompactHeight,
                             showNavigationBar: showNavigationBar,
-                            dismissable: dismissable
+                            dismissable: dismissable,
+                            preferredColorScheme: preferredColorScheme
                         ) {
                             content()
                                 .onDisappear {
@@ -136,6 +138,19 @@ public struct BottomSheet {
         ref?.dismiss(animated: true, completion: { ref = nil })
     }
 
+    private static func userInterfaceStyle(for colorScheme: ColorScheme) -> UIUserInterfaceStyle? {
+        switch colorScheme {
+        case .dark:
+            return .dark
+
+        case .light:
+            return .light
+
+        @unknown default:
+            return nil
+        }
+    }
+
     /// Handles the presentation logic of the new UIKit's pageSheet modal presentation style.
     /// *Sarun's* blog article source: https://sarunw.com/posts/bottom-sheet-in-ios-15-with-
     fileprivate static func present<Content: View>(
@@ -147,6 +162,7 @@ public struct BottomSheet {
         showsInCompactHeight: Bool,
         showNavigationBar: Bool,
         dismissable: Bool,
+        preferredColorScheme: ColorScheme?,
         @ViewBuilder _ contentView: @escaping () -> Content
     ) {
         let detailViewController = UIHostingController(rootView: contentView())
@@ -157,6 +173,10 @@ public struct BottomSheet {
         nav.navigationBar.isHidden = !showNavigationBar
         nav.modalPresentationStyle = .pageSheet
         nav.isModalInPresentation = !dismissable
+
+        if let preferredColorScheme, let style = userInterfaceStyle(for: preferredColorScheme) {
+            nav.overrideUserInterfaceStyle = style
+        }
 
         if let sheet = nav.sheetPresentationController {
             sheet.detents = detents.isEmpty ? [.medium()] : detents.compactMap { $0.asUIKitDetent }
