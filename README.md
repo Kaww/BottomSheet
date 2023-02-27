@@ -40,6 +40,11 @@ Button(action: { BottomSheet.dismiss() }) {
 }
 ```
 
+#### Fixed ColorScheme
+
+If you are using a fixed color scheme for your app or a specific view, by using the `.preferredColorScheme(.light)` modifier, you may also want to specify that to the bottom sheet.
+To do so, use the parameter `preferredColorScheme` on the `bottomSheet(...)` modifier.
+
 ## Preview
 
 ![Bottom sheet](./bottomsheet.gif)
